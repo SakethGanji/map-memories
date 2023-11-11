@@ -1,23 +1,25 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
-require('dotenv').config({path:'../.env'});
+require('dotenv').config()
 const User = require('./models/userClass');
 const mongoose = require("mongoose");
+const cors = require("cors")
 
 const app = express();
+app.use(cors())
 app.use(express.json());
 
 mongoose.connect(process.env.MONGO_URL)
 
 // Input Validation Middleware
 const validateRegistration = (req, res, next) => {
-    const { email, username, password, repassword } = req.body;
+    const { email, username, password, retypePassword } = req.body;
 
     const emailRegex = /\S+@\S+\.\S+/;
     if (!emailRegex.test(email)) {
         return res.status(400).json({ error: "Invalid Email" });
     }
-    if (password !== repassword) {
+    if (password !== retypePassword) {
         return res.status(400).json({ error: "Passwords do not match" });
     }
     if (password.length < 8) {
@@ -77,6 +79,5 @@ app.get('/test', (req, res) => {
     res.send('Test route is working!');
 });
 
-// Listening on port 5000
 const PORT = process.env.PORT;
 app.listen(PORT, () => console.log(`Server is running on port localhost:${PORT}`));
