@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect, useContext } from 'react';
-import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
+import Map from 'react-map-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import config from '../config';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -11,14 +11,9 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { useAuth } from '../context/AuthContext';
 import {useNavigate} from "react-router-dom";
 
-mapboxgl.accessToken = config.mapboxToken;
+const accessToken = config.mapboxToken;
 
 function MapComponent() {
-    const mapContainer = useRef(null);
-    const [lng, setLng] = useState(-70.9);
-    const [lat, setLat] = useState(42.35);
-    const [zoom, setZoom] = useState(9);
-
     const navigate = useNavigate();
     const { isLoggedIn, userEmail, logout } = useAuth();
 
@@ -27,23 +22,10 @@ function MapComponent() {
         navigate('/signin');
     };
 
+    const handleLogin = () => {
+        navigate('/signin');
+    };
 
-    useEffect(() => {
-        const map = new mapboxgl.Map({
-            container: mapContainer.current,
-            style: 'mapbox://styles/mapbox/streets-v12',
-            center: [lng, lat],
-            zoom: zoom
-        });
-
-        map.on('move', () => {
-            setLng(map.getCenter().lng.toFixed(4));
-            setLat(map.getCenter().lat.toFixed(4));
-            setZoom(map.getZoom().toFixed(2));
-        });
-
-        return () => map.remove();
-    }, []);
     return (
         <>
             <div style={{ position: 'relative', height: '100vh' }}>
@@ -60,12 +42,24 @@ function MapComponent() {
                                 <Button color="inherit" onClick={handleLogout}>Logout</Button>
                             </>
                         ) : (
-                            <Button color="inherit">Login</Button>
+                            <Button color="inherit" onClick={handleLogin}>Login</Button>
                         )}
                     </Toolbar>
                 </AppBar>
             </div>
-            <div ref={mapContainer} className="map-container" style={{ width: '100%', height: '100%' }} />
+
+            <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}>
+                <Map
+                    mapboxAccessToken={config.mapboxToken}
+                    initialViewState={{
+                        longitude: -122.4,
+                        latitude: 37.8,
+                        zoom: 14,
+                    }}
+                    style={{ width: '100%', height: '100%' }}
+                    mapStyle="mapbox://styles/mapbox/streets-v9"
+                />
+            </div>
         </>
     );
 }
