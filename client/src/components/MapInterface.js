@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect, useContext } from 'react';
-import Map from 'react-map-gl'; // eslint-disable-line import/no-webpack-loader-syntax
+import Map, {Marker, NavigationControl, Popup, GeolocateControl, ScaleControl, FullscreenControl} from 'react-map-gl';
 import config from '../config';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -10,8 +10,6 @@ import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useAuth } from '../context/AuthContext';
 import {useNavigate} from "react-router-dom";
-
-const accessToken = config.mapboxToken;
 
 function MapComponent() {
     const navigate = useNavigate();
@@ -57,8 +55,13 @@ function MapComponent() {
                         zoom: 14,
                     }}
                     style={{ width: '100%', height: '100%' }}
-                    mapStyle="mapbox://styles/mapbox/streets-v9"
-                />
+                    mapStyle="mapbox://styles/sakethganji/cl5nmraf7000214mqy8xtt6yr"
+                >
+                    <NavigationControl position='bottom-left' />
+                    <FullscreenControl position='bottom-right' />
+                    <GeolocateControl position='bottom-right' />
+
+                </Map>
             </div>
         </>
     );
