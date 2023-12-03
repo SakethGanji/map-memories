@@ -14,11 +14,13 @@ import Typography from '@mui/material/Typography';
 import {createTheme, ThemeProvider} from '@mui/material/styles';
 import {useNavigate} from "react-router-dom";
 import { Link as RouterLink } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const defaultTheme = createTheme();
 
 export default function SignIn() {
         const navigate = useNavigate();
+        const { login } = useAuth();
 
         const handleSubmit = async (event) => {
             event.preventDefault();
@@ -29,7 +31,7 @@ export default function SignIn() {
             };
 
             try {
-                const response = await fetch('http://localhost:5000/login', {
+                const response = await fetch('http://localhost:5000/user/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -40,6 +42,7 @@ export default function SignIn() {
                 const responseData = await response.text();
 
                 if (response.ok && responseData === 'Login successful') {
+                    login(loginData.email);
                     navigate('/map');
                 } else {
                     console.log('Login failed: ', responseData);
@@ -48,7 +51,6 @@ export default function SignIn() {
                 console.error('Error during login:', error);
             }
         };
-
 
         return (
             <ThemeProvider theme={defaultTheme}>
@@ -77,9 +79,7 @@ export default function SignIn() {
                                 alignItems: 'center',
                             }}
                         >
-                            <Avatar sx={{m: 1, bgcolor: 'secondary.main'}}>
-                                <LockOutlinedIcon/>
-                            </Avatar>
+
                             <Typography component="h1" variant="h5">
                                 Sign in
                             </Typography>
@@ -117,11 +117,6 @@ export default function SignIn() {
                                     Sign In
                                 </Button>
                                 <Grid container>
-                                    <Grid item xs>
-                                        <Link href="#" variant="body2">
-                                            Forgot password?
-                                        </Link>
-                                    </Grid>
                                     <Grid item>
                                         <RouterLink to="/register" variant="body2">
                                             Don't have an account? Sign Up
