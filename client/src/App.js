@@ -4,7 +4,6 @@ import SignIn from './components/SignIn';
 import MapComponent from './components/MapInterface';
 import Register from "./components/Register";
 import { AuthProvider } from './context/AuthContext';
-import Header from "./components/Header";
 
 function App() {
     return (

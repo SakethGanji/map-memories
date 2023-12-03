@@ -16,5 +16,8 @@ app.get('/test', (req, res) => {
 const userRoutes = require('./controllers/userController');
 app.use('/user', userRoutes);
 
+const pinRoutes = require('./controllers/pinController');
+app.use('/post', pinRoutes);
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server is running on port localhost:${PORT}`));
