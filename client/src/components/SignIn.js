@@ -15,7 +15,7 @@ import {createTheme, ThemeProvider} from '@mui/material/styles';
 import {useNavigate} from "react-router-dom";
 import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-
+import backgroundImage from '../assets/map-working.png';
 const defaultTheme = createTheme();
 
 export default function SignIn() {
@@ -62,7 +62,7 @@ export default function SignIn() {
                         sm={4}
                         md={7}
                         sx={{
-                            backgroundImage: '',
+                            backgroundImage: `url(${backgroundImage})`,
                             backgroundColor: (t) =>
                                 t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
                             backgroundSize: 'cover',

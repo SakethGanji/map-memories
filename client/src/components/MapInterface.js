@@ -8,6 +8,11 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from "react-router-dom";
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import TextField from "@mui/material/TextField";
 
 function MapComponent() {
     const navigate = useNavigate();
@@ -15,6 +20,7 @@ function MapComponent() {
     const [newPin, setNewPin] = useState(null);
     const [pins, setPins] = useState([]);
     const [selectedPin, setSelectedPin] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
 
     const handleLogout = () => {
         logout();
@@ -65,6 +71,42 @@ function MapComponent() {
     const handleMarkerClick = (pin) => {
         setSelectedPin(pin);
     };
+    const handleEditClick = () => {
+        setIsEditing(true);
+    };
+
+    const handleSaveEdit = async () => {
+        try {
+            const res = await axios.put(`http://localhost:5000/post/${selectedPin._id}`, selectedPin);
+            // Update the pin in your state
+            setPins(pins.map(pin => pin._id === selectedPin._id ? res.data : pin));
+            setIsEditing(false);
+            setSelectedPin(null);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleDelete = async () => {
+        try {
+            await axios.delete(`http://localhost:5000/post/${selectedPin._id}`);
+            // Remove the pin from your state
+            setPins(pins.filter(pin => pin._id !== selectedPin._id));
+            setSelectedPin(null);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+
+    const bull = (
+        <Box
+            component="span"
+            sx={{ display: 'inline-block', mx: '2px', transform: 'scale(0.8)' }}
+        >
+            •
+        </Box>
+    );
 
     return (
         <>
@@ -121,37 +163,181 @@ function MapComponent() {
                             latitude={selectedPin.latitude}
                             closeButton={true}
                             closeOnClick={false}
-                            onClose={() => setSelectedPin(null)}
+                            onClose={() => {
+                                setSelectedPin(null);
+                                setIsEditing(false);
+                            }}
                             anchor="top"
+                            style={{ minWidth: '210px', minHeight: '100px' }}
                         >
-                            <div>
-                                <h4>{selectedPin.title}</h4>
-                                <p>{selectedPin.description}</p>
-                                <p>{selectedPin.username}</p>
-                            </div>
+                            {isEditing ? (
+                                // Edit Mode
+                                <Box
+                                    component="form"
+                                    sx={{
+                                        '& .MuiTextField-root': { m: 1, width: '25ch' },
+                                    }}
+                                    noValidate
+                                    autoComplete="off"
+                                >
+                                    <TextField
+                                        label="Title"
+                                        value={selectedPin.title || ''}
+                                        onChange={(e) => setSelectedPin({ ...selectedPin, title: e.target.value })}
+                                        margin="normal"
+                                        fullWidth
+                                    />
+
+                                    <TextField
+                                        label="Description"
+                                        multiline
+                                        rows={4}
+                                        value={selectedPin.description || ''}
+                                        onChange={(e) => setSelectedPin({ ...selectedPin, description: e.target.value })}
+                                        margin="normal"
+                                        fullWidth
+                                    />
+
+                                    <CardActions>
+                                        <Button variant="contained" color="primary" onClick={handleSaveEdit}>Save</Button>
+                                        <Button variant="outlined" color="secondary" onClick={() => setIsEditing(false)}>Cancel</Button>
+                                    </CardActions>
+                                </Box>
+                            ) : (
+                                // Display Mode
+                                <CardContent>
+                                    <Typography variant="h6" component="div">
+                                        {selectedPin.title}
+                                    </Typography>
+                                    <Typography variant="body2">
+                                        {selectedPin.description}
+                                    </Typography>
+                                    <CardActions>
+                                        <Button variant="contained" color="success" onClick={() => setIsEditing(true)}>Edit</Button>
+                                        <Button variant="contained" color="error" onClick={handleDelete}>Delete</Button>
+                                    </CardActions>
+                                </CardContent>
+                            )}
                         </Popup>
                     )}
 
-                    // popup
-                    {newPin && (
+
+                    {selectedPin && (
                         <Popup
-                            longitude={newPin.longitude}
-                            latitude={newPin.latitude}
+                            longitude={selectedPin.longitude}
+                            latitude={selectedPin.latitude}
                             closeButton={true}
                             closeOnClick={false}
-                            onClose={() => setNewPin(null)}
-                            anchor="left"
+                            onClose={() => {
+                                setSelectedPin(null);
+                                setIsEditing(false);
+                            }}
+                            anchor="top"
+                            style={{ minWidth: '210px', minHeight: '100px' }}
                         >
-                            <div>
-                                <form onSubmit={handleSubmit}>
-                                    <label>Title</label>
-                                    <input onChange={(e) => setNewPin({ ...newPin, title: e.target.value })} />
-                                    <label>Description</label>
-                                    <textarea onChange={(e) => setNewPin({ ...newPin, description: e.target.value })} />
-                                    <button type="submit">Add Pin</button>
-                                </form>
-                            </div>
+                            {isEditing ? (
+                                // Edit Mode
+                                <Box
+                                    component="form"
+                                    sx={{
+                                        '& .MuiTextField-root': { m: 1, width: '25ch' },
+                                    }}
+                                    noValidate
+                                    autoComplete="off"
+                                >
+                                    <TextField
+                                        label="Title"
+                                        value={selectedPin.title || ''}
+                                        onChange={(e) => setSelectedPin({ ...selectedPin, title: e.target.value })}
+                                        margin="normal"
+                                        fullWidth
+                                    />
+
+                                    <TextField
+                                        label="Description"
+                                        multiline
+                                        rows={4}
+                                        value={selectedPin.description || ''}
+                                        onChange={(e) => setSelectedPin({ ...selectedPin, description: e.target.value })}
+                                        margin="normal"
+                                        fullWidth
+                                    />
+
+                                    <CardActions>
+                                        <Button variant="contained" color="primary" onClick={handleSaveEdit}>Save</Button>
+                                        <Button variant="outlined" color="secondary" onClick={() => setIsEditing(false)}>Cancel</Button>
+                                    </CardActions>
+                                </Box>
+                            ) : (
+                                // Display Mode
+                                <CardContent>
+                                    <Typography variant="h6" component="div">
+                                        {selectedPin.title}
+                                    </Typography>
+                                    <Typography variant="body2">
+                                        {selectedPin.description}
+                                    </Typography>
+                                    <CardActions>
+                                        <Button variant="contained" color="success" onClick={() => setIsEditing(true)}>Edit</Button>
+                                        <Button variant="contained" color="error" onClick={handleDelete}>Delete</Button>
+                                    </CardActions>
+                                </CardContent>
+                            )}
                         </Popup>
+                    )}
+
+
+                    // popup
+
+                    {newPin && (
+                        <Box
+                            component="form"
+                            sx={{
+                                '& .MuiTextField-root': { m: 1, width: '25ch' },
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                            }}
+                            noValidate
+                            autoComplete="off"
+                        >
+                            <Popup
+                                longitude={newPin.longitude}
+                                latitude={newPin.latitude}
+                                closeButton={true}
+                                closeOnClick={false}
+                                onClose={() => setNewPin(null)}
+                                anchor="left"
+                            >
+                                <div>
+                                    <TextField
+                                        label="Title"
+                                        value={newPin.title || ''}
+                                        onChange={(e) => setNewPin({ ...newPin, title: e.target.value })}
+                                        margin="normal"
+                                        fullWidth
+                                    />
+
+                                    <TextField
+                                        label="Description"
+                                        multiline
+                                        rows={4}
+                                        value={newPin.description || ''}
+                                        onChange={(e) => setNewPin({ ...newPin, description: e.target.value })}
+                                        margin="normal"
+                                        fullWidth
+                                    />
+                                    <Box sx={{ mt: 2, width: '100%', display: 'flex', justifyContent: 'center' }}>
+                                        <Button
+                                            variant="contained"
+                                            onClick={handleSubmit}
+                                        >
+                                            Add Pin
+                                        </Button>
+                                    </Box>
+                                </div>
+                            </Popup>
+                        </Box>
                     )}
                 </Map>
             </div>
